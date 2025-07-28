@@ -20,7 +20,6 @@ Create a `.env` file:
 ```env
 LLM_PROVIDER=groq
 GROQ_API_KEY=your_groq_api_key_here
-GROQ_MODEL=mixtral-8x7b-32768
 EMBEDDING_MODEL=groq-embed-english-v1  # Embedding model used for vector search
 ```
 
