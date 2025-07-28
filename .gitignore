@@ -1,0 +1,56 @@
+# Python bytecode and built files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+
+# Virtual environments
+venv/
+env/
+.env
+.venv/
+ENV/
+
+# Logs, coverage, test outputs
+*.log
+.coverage
+.pytest_cache/
+.mypy_cache/
+
+# IDE / editor folders and files
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Environment files (keep example)
+.env
+.env.*
+!.env.example
+
+# Docker config that shouldn't be committed (already tracked if needed)
+.dockerignore
+
+# Test artifacts
+test_results.json

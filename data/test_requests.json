@@ -1,0 +1,60 @@
+{
+  "test_requests": [
+    {
+      "id": "req_001",
+      "request": "I forgot my password and can't log into my computer. How do I reset it?",
+      "expected_classification": "password_reset",
+      "expected_elements": ["self-service portal", "company.com/reset", "account lockout"],
+      "escalate": false
+    },
+    {
+      "id": "req_002", 
+      "request": "I'm trying to install new software but keep getting an error message saying I don't have permission.",
+      "expected_classification": "software_installation",
+      "expected_elements": ["administrator privileges", "manager approval", "antivirus"],
+      "escalate": false
+    },
+    {
+      "id": "req_003",
+      "request": "My laptop screen went completely black and won't turn on. I have an important presentation tomorrow.",
+      "expected_classification": "hardware_failure",
+      "expected_elements": ["hardware support", "backup data", "temporary equipment"],
+      "escalate": true
+    },
+    {
+      "id": "req_004",
+      "request": "I can connect to WiFi but can't access any websites or company applications.",
+      "expected_classification": "network_connectivity",
+      "expected_elements": ["network adapter", "guest network", "network team"],
+      "escalate": false
+    },
+    {
+      "id": "req_005",
+      "request": "My email stopped syncing yesterday and I'm not receiving any new messages.",
+      "expected_classification": "email_configuration",
+      "expected_elements": ["IMAP settings", "spam folder", "email admin"],
+      "escalate": false
+    },
+    {
+      "id": "req_006",
+      "request": "I think someone hacked my computer because I'm seeing strange pop-ups and my browser homepage changed.",
+      "expected_classification": "security_incident",
+      "expected_elements": ["security team", "immediate attention", "malware"],
+      "escalate": true
+    },
+    {
+      "id": "req_007",
+      "request": "Can you help me set up a new distribution list for our marketing team?",
+      "expected_classification": "email_configuration",
+      "expected_elements": ["email admin", "distribution list"],
+      "escalate": false
+    },
+    {
+      "id": "req_008",
+      "request": "What's the policy for installing personal software on work computers?",
+      "expected_classification": "policy_question",
+      "expected_elements": ["approved vendor", "manager approval", "personal software"],
+      "escalate": false
+    }
+  ]
+}

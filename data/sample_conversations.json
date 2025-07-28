@@ -1,0 +1,70 @@
+{
+  "test_conversations": [
+    {
+      "id": "conv_001",
+      "scenario": "Password Reset Request",
+      "user_message": "Hi, I forgot my password and can't log into my computer. Can you help me reset it?",
+      "expected_category": "password_reset",
+      "expected_response_elements": [
+        "password reset portal",
+        "company email",
+        "policy requirements",
+        "step-by-step instructions"
+      ],
+      "escalation_required": false
+    },
+    {
+      "id": "conv_002", 
+      "scenario": "Software Installation Help",
+      "user_message": "I need to install Slack on my new laptop but it keeps giving me an error. I'm in the marketing team.",
+      "expected_category": "software_installation_failed",
+      "expected_response_elements": [
+        "administrator privileges",
+        "installation guides",
+        "troubleshooting steps",
+        "IT support contact"
+      ],
+      "escalation_required": false
+    },
+    {
+      "id": "conv_003",
+      "scenario": "Complex Hardware Issue",
+      "user_message": "My laptop screen is flickering and sometimes goes completely black. It's affecting my work on the Peterson project that's due tomorrow.",
+      "expected_category": "hardware_issue",
+      "expected_response_elements": [
+        "hardware support contact",
+        "urgency acknowledgment",
+        "temporary workaround suggestions"
+      ],
+      "escalation_required": true,
+      "escalation_reason": "Hardware failure requiring immediate attention"
+    },
+    {
+      "id": "conv_004",
+      "scenario": "New Employee Setup",
+      "user_message": "Hi, I'm starting tomorrow as a software engineer. What do I need to know about setting up my work computer and accessing company systems?",
+      "expected_category": "employee_onboarding",
+      "expected_response_elements": [
+        "VPN setup",
+        "software installation guides", 
+        "company policies",
+        "first-day checklist"
+      ],
+      "escalation_required": false
+    },
+    {
+      "id": "conv_005",
+      "scenario": "Security Concern",
+      "user_message": "I think I clicked on a suspicious email link by mistake. My computer seems fine but I'm worried about security. What should I do?",
+      "expected_category": "security_incident",
+      "expected_response_elements": [
+        "security team contact",
+        "immediate actions",
+        "incident reporting",
+        "don't attempt to fix yourself"
+      ],
+      "escalation_required": true,
+      "escalation_reason": "Potential security incident requires immediate security team attention"
+    }
+  ]
+}
