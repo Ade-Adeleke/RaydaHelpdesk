@@ -5,7 +5,7 @@ An intelligent help desk system using Large Language Models (LLMs) for automated
 ## 🚀 Quick Start
 
 ```bash
-# Build and run
+# Build and run (with vector search)
 docker build -t ai-helpdesk-system .
 docker run -d --name helpdesk -p 8000:8000 --env-file .env ai-helpdesk-system
 
@@ -21,6 +21,7 @@ Create a `.env` file:
 LLM_PROVIDER=groq
 GROQ_API_KEY=your_groq_api_key_here
 GROQ_MODEL=mixtral-8x7b-32768
+EMBEDDING_MODEL=groq-embed-english-v1  # Embedding model used for vector search
 ```
 
 ### 2. API Key
@@ -146,7 +147,9 @@ curl -X POST "http://localhost:8000/submit" \
 - Priority-based escalation (low, medium, high, critical)
 - Confidence threshold analysis
 
-### ✅ Knowledge Retrieval
+### ✅ Knowledge Retrieval (Vector Search)
+- Groq embeddings + FAISS vector index for fast semantic search
+- Fallback to LLM or keyword search if embeddings unavailable
 - Semantic search through knowledge base
 - Multiple document types (Markdown, JSON)
 - Relevance scoring and context building
@@ -167,72 +170,9 @@ docker run -d \
   ai-helpdesk-system
 ```
 
-### Container Management
-```bash
-# View logs
-docker logs helpdesk
+##  Development
 
-# Stop container
-docker stop helpdesk
 
-# Remove container
-docker rm helpdesk
-
-# Access shell
-docker exec -it helpdesk /bin/bash
-```
-
-### Production Configuration
-```bash
-# With resource limits
-docker run -d \
-  --name helpdesk \
-  -p 8000:8000 \
-  --env-file .env \
-  --memory=1g \
-  --cpus=1.0 \
-  --restart=unless-stopped \
-  ai-helpdesk-system
-```
-
-## 📊 Performance
-
-### Metrics
-- **Docker Image Size**: ~500MB (optimized)
-- **Memory Usage**: ~200MB baseline
-- **Startup Time**: ~5 seconds
-- **API Response Time**: 2-10 seconds (depending on complexity)
-
-### Optimization
-- Non-root container execution
-- Multi-stage Docker builds
-- Efficient dependency management
-- Health checks and monitoring
-
-## 🔒 Security
-
-- API keys via environment variables only
-- No hardcoded secrets
-- Non-root container execution
-- Minimal attack surface
-- Input validation and sanitization
-
-## 🛠️ Development
-
-### Project Structure
-```
-AI_ML Engineer/
-├── src/helpdesk/           # Main package
-├── data/                   # Knowledge base files
-├── tests/                  # Test suite
-├── scripts/                # Utility scripts
-├── main.py                 # Entry point
-├── setup.py                # Package setup
-├── requirements.txt        # Dependencies
-├── Dockerfile              # Container config
-├── docker-compose.yml      # Orchestration
-└── README.md              # This file
-```
 
 ### Adding New Features
 1. Add business logic to `src/helpdesk/core/`
