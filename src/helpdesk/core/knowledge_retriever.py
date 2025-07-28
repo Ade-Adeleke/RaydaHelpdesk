@@ -6,9 +6,20 @@ Uses LLM for semantic search instead of vector embeddings
 import json
 import os
 from typing import List, Dict, Any
+import numpy as np
+import re
+
+import faiss
+
 from ..models.models import RetrievalResult
 from .response_generator import ResponseGenerator
-import re
+from ..utils.config import Config
+
+# Lazy import Groq so code still runs without the package if Groq provider isn't used.
+try:
+    from groq import Groq
+except ImportError:  # pragma: no cover
+    Groq = None
 
 
 class LLMKnowledgeRetriever:
@@ -17,7 +28,14 @@ class LLMKnowledgeRetriever:
     def __init__(self):
         self.knowledge_chunks = []
         self.response_generator = ResponseGenerator()
+
+        # Vector search attributes
+        self.faiss_index = None
+        self.groq_client = None
+
+        # Load KB and build vector index
         self._load_knowledge_base()
+        self._build_vector_index()
     
     def _load_knowledge_base(self):
         """Load and chunk knowledge base documents"""
@@ -119,9 +137,14 @@ class LLMKnowledgeRetriever:
             print(f"Error loading {file_path}: {e}")
     
     def retrieve(self, query: str, category: str = None) -> List[RetrievalResult]:
-        """Retrieve relevant knowledge using LLM semantic search"""
+        """Retrieve relevant knowledge using vector similarity (FAISS + Groq embeddings) with LLM and keyword fallbacks."""
         if not self.knowledge_chunks:
             return []
+
+        # 1) Attempt fast vector search
+        vector_results = self._vector_search(query)
+        if vector_results:
+            return vector_results  # Early return if we found matches
         
         # Create a prompt for the LLM to find relevant chunks
         knowledge_summaries = []
@@ -199,6 +222,70 @@ Most relevant chunk numbers (top 3):"""
         
         return results
     
+    # -------------------- Vector Search helpers --------------------
+    def _build_vector_index(self):
+        """Build an in-memory FAISS index using Groq embeddings (if credentials available)."""
+        if Groq is None or not Config.GROQ_API_KEY:
+            # Groq not configured; skip vector search.
+            return
+        try:
+            self.groq_client = Groq(api_key=Config.GROQ_API_KEY)
+            texts = [chunk['content'][:1000] for chunk in self.knowledge_chunks]
+            if not texts:
+                return
+
+            embeddings = []
+            batch_size = 96  # Groq batch limit
+            for i in range(0, len(texts), batch_size):
+                batch = texts[i : i + batch_size]
+                resp = self.groq_client.embeddings.create(
+                    model=getattr(Config, 'EMBEDDING_MODEL', 'groq-embed-english-v1'),
+                    input=batch,
+                )
+                embeddings.extend([d.embedding for d in resp.data])
+
+            vecs = np.asarray(embeddings, dtype='float32')
+            # Normalise for cosine similarity search
+            faiss.normalize_L2(vecs)
+            dim = vecs.shape[1]
+            index = faiss.IndexFlatIP(dim)
+            index.add(vecs)
+            self.faiss_index = index
+        except Exception as e:
+            print(f"Vector index build failed; continuing without vector search: {e}")
+
+    def _vector_search(self, query: str, top_k: int = 3) -> List[RetrievalResult]:
+        """Return top-k KB chunks using FAISS. Empty list if unavailable."""
+        if not self.faiss_index or not self.groq_client:
+            return []
+        try:
+            q_emb = self.groq_client.embeddings.create(
+                model=getattr(Config, 'EMBEDDING_MODEL', 'groq-embed-english-v1'),
+                input=[query],
+            ).data[0].embedding
+            q_vec = np.asarray([q_emb], dtype='float32')
+            faiss.normalize_L2(q_vec)
+            D, I = self.faiss_index.search(q_vec, top_k)
+
+            results = []
+            for score, idx in zip(D[0], I[0]):
+                if idx < len(self.knowledge_chunks):
+                    chunk = self.knowledge_chunks[idx]
+                    results.append(
+                        RetrievalResult(
+                            content=chunk['content'],
+                            source=chunk['source'],
+                            relevance_score=float(score),
+                            section=chunk['section'],
+                        )
+                    )
+            return results
+        except Exception as e:
+            print(f"Vector search failed, falling back to LLM: {e}")
+            return []
+
+    # ----------------------------------------------------------------
+
     def get_stats(self) -> Dict[str, Any]:
         """Get knowledge base statistics"""
         return {
